@@ -13,6 +13,8 @@ import argparse, os, json, yaml
 import torch
 import numpy as np
 
+from lejepa_id.device import resolve_device
+
 from lejepa_id.mixing import MIXINGS_2D, make_coupling_mixing
 from lejepa_id.models import make_mlp_encoder, make_matched_encoder
 from lejepa_id.data import sample_latents, ou_augment
@@ -262,12 +264,14 @@ def main():
     p.add_argument("--alpha", type=float, default=None, help="Gennorm shape (gennorm)")
     p.add_argument("--mode", type=str, default=None,
                help="Override mode (lejepa/whiten/infonce)")
+    p.add_argument("--device", type=str, default="auto",
+                   help="Compute device: auto, cuda, cuda:0, cpu, etc. Can also be set with LEJEPA_DEVICE.")
     args = p.parse_args()
 
     with open(args.config) as f:
         cfg = yaml.safe_load(f)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = resolve_device(args.device)
     print(f"Device: {device}")
 
     spec = resolve_run_spec(cfg, args)

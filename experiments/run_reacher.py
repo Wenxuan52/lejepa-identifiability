@@ -16,6 +16,8 @@ Usage:
 
 import argparse, os, json, yaml
 import numpy as np
+
+from lejepa_id.device import resolve_device
 import torch
 import torch.nn.functional as F
 
@@ -237,12 +239,14 @@ def main():
     p.add_argument("--config", type=str, required=True)
     p.add_argument("--data_dir", type=str, required=True,
                    help="Path to prerendered dataset (ou/rho=X or traj/delta=X)")
+    p.add_argument("--device", type=str, default="auto",
+                   help="Compute device: auto, cuda, cuda:0, cpu, etc. Can also be set with LEJEPA_DEVICE.")
     args = p.parse_args()
 
     with open(args.config) as f:
         cfg = yaml.safe_load(f)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = resolve_device(args.device)
     print(f"Device: {device}")
 
     out_dir = cfg["out"]
